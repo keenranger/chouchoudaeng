@@ -238,10 +238,10 @@ void pump_stop() {
 }
 void pump_check() {
   if (pump_state == 1 && (millis() - pump_prev) > 3000) {//3초후 켜지게
-    digitalWrite(relay_pin[0], HIGH);// 1 펌프핀번호로
+    digitalWrite(relay_pin[0], HIGH);
   }
   else {
-    digitalWrite(relay_pin[0], LOW);// 1 펌프핀번호로
+    digitalWrite(relay_pin[0], LOW);
   }
 }
 //////////////////////////////
