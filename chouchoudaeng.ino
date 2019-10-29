@@ -234,8 +234,8 @@ void auto_clean_check() {
 }
 //////////////  펌프부분  ////////////////////
 void pump_start() {
-  pump_state = 1;
   pump_prev = millis();
+  pump_state = 1;
 }
 void pump_stop() {
   pump_state = 0;
