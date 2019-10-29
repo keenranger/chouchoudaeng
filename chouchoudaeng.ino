@@ -82,7 +82,7 @@ void loop() {
   }
   pump_check();
   led_check();
-  dryer_check;
+  dryer_check();
 }
 ///////////// 버튼 인식 부분 ////////////////
 void debouncing_button(int i) {
@@ -224,6 +224,7 @@ void auto_clean_check() {
       delay(15000);//15초후에
       digitalWrite(relay_pin[0], LOW);//펌프끄고
       digitalWrite(relay_pin[6], LOW); //욕조세척끄고
+      auto_clean_queue=0;//작업완료 확인하고
       state_0();
     }
   }
