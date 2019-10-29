@@ -66,13 +66,15 @@ void setup() {
 void loop() {
   if (digitalRead(pay_pin) == HIGH) {//결제 되었을 때 만
     for (int i = 0; i < 9; i++) { //버튼 받아오기
-      debouncing_button[i];
+      debouncing_button(i);
     }
     pay_prev = 1;
   }
   else {//결제가 끝났을때의 경우
     if (pay_prev == 1) {//결제가 켜져있다가 꺼진 경우이면
       state_0();//우선 정지상태로
+      button_toggle[7]=0;//드라이어 버튼 상태도 꺼줍니다.
+      button_toggle[8]=0;
       pay_prev = 0;
       auto_clean_queue = 1; //자동세척 한번 예약
     }
@@ -92,6 +94,7 @@ void debouncing_button(int i) {
     if (reading != button_state[i]) { //state와 상태가 다를경우 기록
       button_state[i] = reading;
       if (button_state[i] == LOW) { //LOW일때 작업 할당 -> pull-up 저항있음
+        buzzer();//버튼누를때마다 소리나게
         switch (i) {//누른 버튼에 따라 적당한 state로 할당
           case 0:
             state_1();
@@ -112,7 +115,6 @@ void debouncing_button(int i) {
             button_toggle[i] = !button_toggle[i];
             break;
         }
-        buzzer();//버튼누를때마다 소리나게
       }
     }
   }
@@ -137,7 +139,7 @@ void state_1() {
 }
 void state_2(int i) {
   if (state != 2) {//샴.월.스 처음 킬때
-    if (analogRead(water_pin) >= 800) {
+    if (analogRead(water_pin) >= 500) {
       toggle_reset();
       state = 2;
       button_toggle[i] = 1;
@@ -177,6 +179,7 @@ void state_4() {//욕조청소는 다른 버튼이 눌리지 않는다.
   toggle_reset();
   state = 4;
   button_toggle[5] = 1;
+  led_check(); //루프로 안가기때문에
   //todo 음성으로 시작하는것 알려주기
   digitalWrite(relay_pin[1], HIGH); //급수키고
   button_check; //샴월스 키고꺼기 체크
