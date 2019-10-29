@@ -9,17 +9,17 @@ int water_pin = 15;
 ///////these lines are for debouncing buttons///////////
 boolean last_button_state[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 boolean button_state[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-int last_debounce[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+unsigned long last_debounce[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 const int debounce_delay = 50;
 /////////////////////////////////////////////////////////
 
 boolean button_toggle[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 int state = 0;//0:정지, 1:물받기, 2:샴푸/월풀/스파 3:헹굼 4:욕조청소
 int pump_state = 0; //0:꺼짐, 1:켜짐대기 or 켜짐
-int pump_prev = 0; //펌프 딜레이를 위한 부분
+unsigned long pump_prev = 0; //펌프 딜레이를 위한 부분
 int pay_prev = 0; //방금전에 결제가 되어있던 상태인지 확인하기 위한 부분
 int auto_clean_queue = 0; //자동세척 해야함
-int auto_clean_prev = 0;
+unsigned long auto_clean_prev = 0;
 
 
 
