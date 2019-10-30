@@ -202,6 +202,9 @@ void state_0() {//정지버튼이나 토글로 꺼질 때
   button_check(); //샴월스끄고
   digitalWrite(relay_pin[5], LOW); //배관끄고
   digitalWrite(relay_pin[6], LOW); //욕조끄고
+  if(pay_prev==1){//결제종료로 오는 경우라면
+    digitalWrite(relay_pin[7], LOW); //배수키고
+  }
 }
 ///자동세척 부분///
 void auto_clean_check() {
