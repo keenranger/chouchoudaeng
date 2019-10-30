@@ -155,13 +155,13 @@ void state_2(int i) {
     }
   }
   else {//샴.월.스 토글
-    if ((button_toggle[1]==0) &&(button_toggle[2]==0)){//샴월둘다꺼지면
+    button_toggle[i] = !button_toggle[i]; //해당버튼 토글하고
+    if ((button_toggle[1] == 0) && (button_toggle[2] == 0)) { //샴월둘다꺼지면
       pump_stop();
     }
-    else{//하나라도 켜지면
+    else { //하나라도 켜지면
       pump_start();
     }
-    button_toggle[i] = !button_toggle[i];
     button_check();//버튼 토글상태에따른 핀 조절 ->샴월스 담당
   }
 }
