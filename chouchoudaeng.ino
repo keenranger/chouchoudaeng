@@ -270,7 +270,7 @@ void led_check() {
 }
 void button_check() { //토글에따른 릴레이 제어 부분 ->샴월스
   for (int i = 0; i < 3; i++) { //led on/off upon toggle
-    if (button_toggle[i + 2] == 1) {
+    if (button_toggle[i + 1] == 1) {
       digitalWrite(relay_pin[i + 2], HIGH);
     }
     else {
