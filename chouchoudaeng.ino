@@ -243,11 +243,14 @@ void auto_clean_check() {
 }
 //////////////  펌프부분  ////////////////////
 void pump_start() {
-  pump_prev = millis();
   pump_state = 1;
+  if (pump_prev == 0) {
+    pump_prev = millis();
+  }
 }
 void pump_stop() {
   pump_state = 0;
+  pump_prev = 0;
 }
 void pump_check() {
   if (pump_state == 1 && (millis() - pump_prev) > 3000) {//3초후 켜지게
