@@ -72,10 +72,10 @@ void loop() {
   }
   else {//결제가 끝났을때의 경우
     if (pay_prev == 1) {//결제가 켜져있다가 꺼진 경우이면
+      pay_prev = 0;//결제가 끝났다고 알려줌.
       state_0();//우선 정지상태로
       button_toggle[7] = 0; //드라이어 버튼 상태도 꺼줍니다.
       button_toggle[8] = 0;
-      pay_prev = 0;
       auto_clean_queue = 1; //자동세척 한번 예약
     }
     auto_clean_check();
@@ -208,8 +208,8 @@ void state_0() {//정지버튼이나 토글로 꺼질 때
   button_check(); //샴월스끄고
   digitalWrite(relay_pin[5], LOW); //배관끄고
   digitalWrite(relay_pin[6], LOW); //욕조끄고
-  if (pay_prev == 1) { //결제종료로 오는 경우라면
-    digitalWrite(relay_pin[7], LOW); //배수키고
+  if (pay_prev == 0) { //결제종료로 오는 경우라면
+    digitalWrite(relay_pin[7], LOW); //배수끄고(물이빠짐)
   }
 }
 ///자동세척 부분///
