@@ -144,7 +144,7 @@ void state_2(int i) {
       state = 2;
       button_toggle[i] = 1;
       pump_start(); //펌프키고
-      digitalWrite(relay_pin[0], LOW); //급수끄고
+      digitalWrite(relay_pin[1], LOW); //급수끄고
       button_check(); //샴월스 키고꺼기 체크
       digitalWrite(relay_pin[5], LOW); //배관세척끄고
       digitalWrite(relay_pin[6], LOW); //욕조세척끄고
@@ -155,6 +155,12 @@ void state_2(int i) {
     }
   }
   else {//샴.월.스 토글
+    if ((button_toggle[1]==0) &&(button_toggle[2]==0)){//샴월둘다꺼지면
+      pump_stop();
+    }
+    else{//하나라도 켜지면
+      pump_start();
+    }
     button_toggle[i] = !button_toggle[i];
     button_check();//버튼 토글상태에따른 핀 조절 ->샴월스 담당
   }
@@ -273,10 +279,10 @@ void button_check() { //토글에따른 릴레이 제어 부분 ->샴월스
   }
 }
 void dryer_check() { //토글에따른 릴레이 제어 부분
-  if (button_toggle[7] == 1 || button_toggle[8] == 1) {
+  if (button_toggle[7] == 1 || button_toggle[8] == 1) {//집진기 둘중하나라도 켜지면 켜기
     digitalWrite(dryer_pin[0], HIGH);
   }
-  if (digitalRead(pay_pin) == LOW) {
+  if (digitalRead(pay_pin) == LOW) {//결제끝나면 끄기
     digitalWrite(dryer_pin[0], LOW);
   }
   for (int i = 0; i < 2; i++) { //dryer onoff upon toggle
