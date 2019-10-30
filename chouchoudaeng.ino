@@ -128,7 +128,7 @@ void state_1() {
     button_toggle[0] = 1;
     pump_start(); //펌프키고
     digitalWrite(relay_pin[1], HIGH); //급수키고
-    button_check; //샴월스끄고
+    button_check(); //샴월스끄고
     digitalWrite(relay_pin[5], LOW); //배관세척끄고
     digitalWrite(relay_pin[6], LOW); //욕조세척끄고
     digitalWrite(relay_pin[7], HIGH); //배수키고
@@ -145,7 +145,7 @@ void state_2(int i) {
       button_toggle[i] = 1;
       pump_start(); //펌프키고
       digitalWrite(relay_pin[0], LOW); //급수끄고
-      button_check; //샴월스 키고꺼기 체크
+      button_check(); //샴월스 키고꺼기 체크
       digitalWrite(relay_pin[5], LOW); //배관세척끄고
       digitalWrite(relay_pin[6], LOW); //욕조세척끄고
       digitalWrite(relay_pin[7], HIGH); //배수키고
@@ -166,7 +166,7 @@ void state_3() {
     button_toggle[4] = 1;
     pump_start(); //펌프키고
     digitalWrite(relay_pin[1], HIGH); //급수키고
-    button_check; //샴월스 키고꺼기 체크
+    button_check(); //샴월스 키고꺼기 체크
     digitalWrite(relay_pin[5], LOW); //배관세척끄고
     digitalWrite(relay_pin[6], LOW); //욕조세척끄고
     digitalWrite(relay_pin[7], LOW); //배수끄고
@@ -182,7 +182,7 @@ void state_4() {//욕조청소는 다른 버튼이 눌리지 않는다.
   led_check(); //루프로 안가기때문에
   //todo 음성으로 시작하는것 알려주기
   digitalWrite(relay_pin[1], HIGH); //급수키고
-  button_check; //샴월스 키고꺼기 체크
+  button_check(); //샴월스 키고꺼기 체크
   digitalWrite(relay_pin[5], LOW); //배관세척끄고
   digitalWrite(relay_pin[6], HIGH); //욕조세척키고
   digitalWrite(relay_pin[7], LOW); //배수끄고
@@ -215,7 +215,7 @@ void auto_clean_check() {
     if ((millis() - auto_clean_prev) > 60000) {//60초되면
       //todo 음성으로 시작하는것 알려주기
       digitalWrite(relay_pin[1], HIGH); //급수키고
-      button_check; //샴월스 키고꺼기 체크
+      button_check(); //샴월스 키고꺼기 체크
       digitalWrite(relay_pin[5], HIGH); //배관세척키고
       digitalWrite(relay_pin[6], LOW); //욕조세척끄고
       digitalWrite(relay_pin[7], LOW); //배수끄고
