@@ -36,7 +36,7 @@ void sendToMaster(){
 }
 //핀모드용 함수들
 void pinmode_input(){
-
+    pinMode(human_pin, INPUT);
 }
 void pinmode_output(){
     for (int i = 0; i < 3; i++){
