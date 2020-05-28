@@ -6,9 +6,10 @@ int button_pin[9] = {
     22, 24, 28, 32, 26,
     30, 34, 36, 38};  //물받기.샴푸.헹굼.월풀.욕조청소.스파.일시정지.드라이1.드라이2
 int led_pin[9] = {23, 25, 29, 33, 27, 31, 35, 37, 39};  //같은순서
-int relay_pin[8] = {40, 41, 42, 43, 44,
-                    45, 46, 47};  //펌프,스6파 밸브,급수 밸브,샤워 밸브,월풀
-                                  //밸브,배관 세척 밸브,욕조 청소 밸브,배수 밸브
+int relay_pin[8] =
+    {40, 41, 42, 43,
+     44, 45, 46, 47};  //펌프,스6파 밸브,급수 밸브,샤워 밸브,월풀
+                       //밸브,배관 세척 밸브,욕조 청소 밸브,배수 밸브
 int human_pin = 51;
 int pay_pin = 52;
 int buzzer_pin = 2;
@@ -171,43 +172,25 @@ void loop() {
 
     }
 
-    else {  //결제가 끝났을때의 경우
-
+    else {                    //결제가 끝났을때의 경우
         if (pay_prev == 1) {  //결제가 켜져있다가 꺼진 경우이면
-
-            pay_prev = 0;  //결제가 끝났다고 알려줌.
-
-            state_0();  //우선 정지상태로
-
+            pay_prev = 0;     //결제가 끝났다고 알려줌.
+            state_0();        //우선 정지상태로
             button_toggle[7] = 0;  //드라이어 버튼 상태도 꺼줍니다.
-
             button_toggle[8] = 0;
-
             auto_clean_queue = 1;  //자동세척 한번 예약
-
-            water_state_1 = 0;  // 물받기 초기화
-
-            rinse_state = 0;  // 헹굼 초기화
-
-            wellcome_state = 0;  // 웰컴 초기화
-
+            water_state_1 = 0;     // 물받기 초기화
+            rinse_state = 0;       // 헹굼 초기화
+            wellcome_state = 0;    // 웰컴 초기화
             // auto_shampoo_stop();
-
             auto_shampoo_state = 0;
-
             dry_state_1 = 0;
-
             dry_state_2 = 0;
-
             shampoo_state_2 = 0;
-
-            shampoo_add_state = 0;  //샴푸 투입 횟수 초기화
-
+            shampoo_add_state = 0;    //샴푸 투입 횟수 초기화
             water_limit_1_state = 0;  //수위확인 초기화
-
-            myMP3.play(17);  // 0017_시간종료
+            myMP3.play(17);           // 0017_시간종료
             auto_clean_prev = millis();
-
             // todo 시간 종료
         }
         auto_clean_check();
