@@ -34,10 +34,10 @@ void setup() {
     pinmode_output();  // led 등 output들 일괄 처리
 }
 void loop() {
-    if (digitalRead(pay_pin) == true) {  //결제 되었을 때만
-        for (int i = 0; i < 10; i++) {   //버튼이 10개
-            button_check(i);             //버튼 눌렸는지 확인
-            queue_processor(i);          //버튼에 따라 동작
+    if (pay_check()) {                  //결제 되었을 때만
+        for (int i = 0; i < 10; i++) {  //버튼이 10개
+            button_check(i);            //버튼 눌렸는지 확인
+            queue_processor(i);         //버튼에 따라 동작
         }
     }
     from_nodemcu();  // nodemcu 명령왔나 확인
@@ -71,31 +71,31 @@ void button_check(int i) {  //버튼 안정적으로 읽기 위한 부분
             }
         }
     }
-    last_button_state = reading;
+    last_button_state[i] = reading;
 }
 
 void queue_processor(int i) {       //버튼 누른거에 따라 동작 할당
     if (button_queue[i] == true) {  //버튼을 눌러 queue에 들어왔다면
         switch (i) {                //버튼에 따라 알맞은 동작
-            case 0:
+            case 0:                 //물받기 눌렸다면
                 break;
-            case 1:
+            case 1:  //샴푸 눌렸다면
                 break;
-            case 2:
+            case 2:  //헹굼 눌렸다면
                 break;
-            case 3:
+            case 3:  //월풀 눌렸다면
                 break;
-            case 4:
+            case 4:  //욕조청소 눌렸다면
                 break;
-            case 5:
+            case 5:  //스파 눌렸다면
                 break;
-            case 6:
+            case 6:  //일시정지 눌렸다면
                 break;
-            case 7:
+            case 7:  //드라이1 눌렸다면
                 break;
-            case 8:
+            case 8:  //드라이2 눌렸다면
                 break;
-            case 9:
+            case 9:  //샴푸추가 눌렸다면
                 break;
         }
     }
@@ -105,17 +105,22 @@ void from_nodemcu() {  // nodemcu로부터 명령 받는 부분
     if (Serial2.available()) {
         String command = Serial2.readStringUntil('\n');
         if (command == "3M") {
-            voice_guidance.play(15);  // 0015_3분남음
+            voice_guidance.play(15);  // 0015_3분 남음
         } else if (command == "1M") {
-            voice_guidance.play(16);
+            voice_guidance.play(16);  // 0016_1분 남음
         } else if (command == "clean") {
-            voice_guidance.play(12);
-            ;  // 0012_자동세척
+            voice_guidance.play(12);  // 0012_자동 세척
             // TODO : 자동세척 명령
         }
     }
 }
 void to_slave() {  // slave에게 명령 주는 부분
 }
-boolean pay_check() {  //돈냈는지 확인
+boolean pay_check() {                    //돈냈는지 확인
+    if (digitalRead(pay_pin) == true) {  //결제 되어있는 상태라면
+
+        return true;
+    } else {
+        return false;
+    }
 }
