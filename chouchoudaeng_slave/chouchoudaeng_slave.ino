@@ -5,7 +5,7 @@ void pinmode_input();
 void pinmode_output();
 
 // 핀번호들 모음
-int water_pin[2] = {68, 69};      // A14, A15 = 68, 67
+int water_pin[2] = {68, 69};  // [A14, A15] = [68, 67] = [샴푸물수위 충분/넘침]
 int dryer_pin[3] = {48, 49, 50};  //집진기,드라이1,드라이2
 int relay_pin[8] =
     {40, 41, 42, 43,
