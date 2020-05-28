@@ -1,146 +1,81 @@
 #include <SoftwareSerial.h>
-//#include <DFPlayer_Mini_Mp3.h>
 #include <DFPlayerMini_Fast.h>
-//SoftwareSerial mp3Serial(15, 14);
 
 
 int dryer_pin[3] = {48, 49, 50};
-
-//int button_pin[9] = {22, 24, 26, 28, 30, 32, 34, 36, 38}; //물받기.샴푸.월풀.스파.헹굼.욕조청소.일시정지.드라이1.드라이2
-
 int button_pin[9] = {22, 24, 28, 32, 26, 30, 34, 36, 38}; //물받기.샴푸.헹굼.월풀.욕조청소.스파.일시정지.드라이1.드라이2
-
-
-
 int led_pin[9] = {23, 25, 29, 33, 27, 31, 35, 37, 39}; //같은순서
-
-//int led_pin[9] = {23, 25, 29, 33, 27, 31, 35, 37, 39}; //같은순서
-
 int relay_pin[8] = {40, 41, 42, 43, 44, 45, 46, 47}; //펌프,스6파 밸브,급수 밸브,샤워 밸브,월풀 밸브,배관 세척 밸브,욕조 청소 밸브,배수 밸브
-
 int human_pin = 51;
-
 int pay_pin = 52;
-
 int buzzer_pin = 2;
-
-int auto_shampoo_relay = 3;
-
+int shampoo_add_button = 12;
+int auto_shampoo_relay = 53;
 int water_pin = A15; // 샴푸 물 수위 확인
-
 int water_limit_pin = A14 ;  // 수위 넘침 조절 핀
 
 ///////these lines are for debouncing buttons///////////
-
 boolean last_button_state[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-
 boolean button_state[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-
 unsigned long last_debounce[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-
 const int debounce_delay = 50;
-
 /////////////////////////////////////////////////////////
 
-
-
 boolean button_toggle[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-
 int state = 0;//0:정지, 1:물받기, 2:샴푸/월풀/스파 3:헹굼 4:욕조청소
-
 int pump_state = 0; //0:꺼짐, 1:켜짐대기 or 켜짐
-
 unsigned long pump_prev = 0; //펌프 딜레이를 위한 부분
-
 int pay_prev = 0; //방금전에 결제가 되어있던 상태인지 확인하기 위한 부분
-
 int auto_clean_queue = 0; //자동세척 해야함
-
 unsigned long shower_time_prev = 0;
-
 unsigned long rinse_time_prev = 0;
-
 unsigned long auto_clean_prev = 0;
 
+unsigned long water_limit_1_prev = 0;
+int water_limit_1_state = 0;
+
 int shampoo_cnt = 0;
-
 int water_state_1 = 0;  // 물받기 확인
-
 int rinse_state = 0;  // 헹굼 확인
-
 int wellcome_state = 0;
-
 int water_lmint_stat = 0;// 물 넘침 확인
-
 int dry_state_1 = 0;
-
 int dry_state_2 = 0;
-
 int shampoo_state = 0;
-
 int wallpool_state = 0;
-
 int spa_state = 0;
-
 int auto_shampoo_state = 0;
-
 unsigned long auto_shampoo_prev = 0;
-
 int shampoo_state_2 = 0;
+int shampoo_button_prev = 1;
+int shampoo_add_state = 0;
 
 
 void debouncing_button(int i);
-
-
-
 void state_0();
-
 void state_1();
-
 void state_2(int i);
-
 void state_3();
-
 void state_4();
-
-
 void auto_clean_check();
-
-
 void pump_start();
-
 void pump_stop();
-
 void pump_check();
-
 void button_check();
-
 void led_check();
-
 void dryer_check();
-
 void buzzer();
-
 void toggle_reset();
-
 void auto_shampoo_start();
-
 void auto_shampoo_check();
-
 void auto_shampoo_stop();
-
-
-
 DFPlayerMini_Fast myMP3;
+
 
 void setup() {
   Serial.begin(9600);
-  Serial2.begin(9600);
+  Serial2.begin(115200);
   Serial3.begin(9600);
-
-  //MP3.set_serial (Serial3);      // DFPlayer-mini mp3 module 시리얼 세팅
-  // delay(1);                     // 볼륨값 적용을 위한 delay
-  // MP3.set_volume (20);          // 볼륨조절 값 0~30}
 
   myMP3.begin(Serial3);
   myMP3.volume(30);
@@ -168,13 +103,13 @@ void setup() {
   pinMode(pay_pin, INPUT);
   pinMode(buzzer_pin, OUTPUT);
   pinMode(auto_shampoo_relay , OUTPUT);
-
+  digitalWrite(auto_shampoo_relay , HIGH);
 
 }
 
 
 void loop() {
-  //digitalWrite(auto_shampoo_relay, HIGH);
+  Serial.println((millis() - auto_clean_prev));
 
   if (Serial2.available()) {
     String cmd = Serial2.readStringUntil('\n');
@@ -185,7 +120,7 @@ void loop() {
     }
 
     if (cmd == "1M") {
-      myMP3.play (18);    //0016_1분남음
+      myMP3.play (16);    //0016_1분남음
     }
 
     if (cmd == "clean") {
@@ -193,15 +128,28 @@ void loop() {
       state_4();
     }
 
-
   }
 
   //Serial.println(analogRead(water_pin));
   //Serial.println(analogRead(water_limit_pin));
-//  Serial.println((millis() - (auto_shampoo_prev)));
 
 
   if (digitalRead(pay_pin) == HIGH) {//결제 되었을 때 만0
+
+
+    if (  digitalRead(shampoo_add_button) == LOW && shampoo_add_state < 3 ) {  //LED버튼 누르면 샴푸투입 최대 3회
+      {
+        Serial.print("샴푸투입");
+        Serial.println( shampoo_add_state);
+        shampoo_add_state = shampoo_add_state + 1;
+        digitalWrite(auto_shampoo_relay, LOW);
+        myMP3.play (5); // 샴푸투입 버튼 
+        delay(5000);
+        digitalWrite(auto_shampoo_relay, HIGH);
+        Serial.println("샴푸투입 종료");
+      }
+    }
+
 
     for (int i = 0; i < 9; i++) { //버튼 받아오기
       debouncing_button(i);
@@ -221,16 +169,6 @@ void loop() {
     }
 
     pay_prev = 1;
-
-    //    if (digitalRead(water_limit_pin) == LOW && water_lmint_stat == 0) {
-    //      state_0();
-    //      MP3.play (1);    //0001_결제완료
-    //      water_lmint_stat = 1;
-    //    }
-    //    if (digitalRead(water_limit_pin) == HIGH ) {
-    //
-    //      water_lmint_stat = 0;
-    //    }
 
   }
 
@@ -254,7 +192,7 @@ void loop() {
 
       wellcome_state = 0;  // 웰컴 초기화
 
-      auto_shampoo_stop();
+      // auto_shampoo_stop();
 
       auto_shampoo_state = 0;
 
@@ -264,19 +202,17 @@ void loop() {
 
       shampoo_state_2 = 0;
 
+      shampoo_add_state = 0; //샴푸 투입 횟수 초기화
+
+      water_limit_1_state = 0; //수위확인 초기화
+
       myMP3.play (17);    //0017_시간종료
+      auto_clean_prev = millis();
 
       //todo 시간 종료
 
     }
     auto_clean_check();
-    //
-    //    if (digitalRead(human_pin) == 1 && wellcome_state == 0) {
-    //
-    //      myMP3.play(10); //0010_웰컴 멘트
-    //
-    //      wellcome_state = 1;
-    //    }
 
   }
 
@@ -287,9 +223,11 @@ void loop() {
 
   dryer_check();
 
-  auto_shampoo_check();
+  //auto_shampoo_check();
 
 
+
+  water_limit_1_check();  //20초 지나고 수위 확인
 }
 
 ///////////// 버튼 인식 부분 ////////////////
@@ -373,25 +311,7 @@ void state_1() {
 
   if (state != 1) {// 물받기 킬때
     state = 1;
-
-    if (water_state_1 == 0) {
-      myMP3.play (2);    //0002_물받기 todo 10초 후 자동으로 샴푸물이 투입됩니다.
-      water_state_1 = 1; // 물받기 시작할때 한번만
-      auto_shampoo_start();
-
-    }
-
-    else if (water_state_1 == 2) {
-      myMP3.play (16);    //0016_물받기 시작.
-      auto_shampoo_stop();
-
-    }
-    //
-    //      else if (water_state_1 == 2) {
-    //        myMP3.play (4);    //0004_물받기 샴푸투입.
-    //        auto_shampoo_start();
-    //        water_state_1 = 3; // 다시 샴푸 투입
-    //      }
+    myMP3.play (2);    //0002_물받기
 
     button_toggle[0] = 1;
     pump_start(); //펌프키고
@@ -401,11 +321,8 @@ void state_1() {
     digitalWrite(relay_pin[5], LOW); //배관세척키고
     digitalWrite(relay_pin[6], HIGH); //욕조세척끄고
     digitalWrite(relay_pin[7], LOW); //배수키고
+    water_limit_1_start(); //  작은욕조 수위 확인 시작
 
-    if (shampoo_state_2 == 0) {
-      auto_shampoo_start();
-      shampoo_state_2 = 1;
-    }
   }
 
   else {//물받기 끌때
@@ -438,12 +355,6 @@ void state_2(int i) {
 
       digitalWrite(relay_pin[1], HIGH); //급수끄고
 
-      //      if (button_toggle[1] == 1 ) {
-      //
-      //        myMP3.play (4);    //0006_샴푸시작
-      //        //todo 샤워기를 꼭 잡으세요
-      //      }
-
       button_check(); //샴월스 키고꺼기 체크
 
       digitalWrite(relay_pin[3], LOW); //월풀키고
@@ -457,7 +368,7 @@ void state_2(int i) {
     }
 
     else {
-      myMP3.play (5);    //0005_수위확인
+      myMP3.play (4);    //0004_수위확인
       //todo 수위 확인하라는 메시지
 
     }
@@ -587,8 +498,6 @@ void state_0() {//정지버튼이나 토글로 꺼질 때
 
   pump_stop(); //펌프끄고
 
-  auto_shampoo_stop();
-
 
   digitalWrite(relay_pin[1], HIGH);
 
@@ -604,14 +513,6 @@ void state_0() {//정지버튼이나 토글로 꺼질 때
 
   }
 
-
-  if ( water_state_1 == 1) {
-    //myMP3.play (4);
-    digitalWrite(auto_shampoo_relay, LOW);
-    // state_1();
-    water_state_1 = 2;
-  }
-
   if (pay_prev == 0) { //결제종료로 오는 경우라면
 
     digitalWrite(relay_pin[7], HIGH); //배수끄고(물이빠짐)
@@ -624,15 +525,9 @@ void state_0() {//정지버튼이나 토글로 꺼질 때
 
 void auto_clean_check() {
 
-  if (auto_clean_queue == 1 && digitalRead(human_pin) == LOW) {//대기중이고, 사람없으면
+  if (auto_clean_queue == 1 ){//대기중이고, 사람없으면
 
-    if (auto_clean_prev == 0) { //카운트초기화되어있으면
-
-      auto_clean_prev = millis(); //카운트할당
-
-    }
-
-    if (auto_clean_prev > 0 && (millis() - auto_clean_prev) > 120000) {//120초되면
+    if (auto_clean_prev > 0 && (millis() - auto_clean_prev) > 600000) {//600초되면
 
       myMP3.play (12);    //0012_자동욕조배관세척시작
 
@@ -652,13 +547,13 @@ void auto_clean_check() {
 
       digitalWrite(relay_pin[0], LOW);//3초후 펌프키고
 
-      delay(25000);//25초후에
+      delay(15000);//25초후에
 
       digitalWrite(relay_pin[5], HIGH); //배관세척끄고
 
       digitalWrite(relay_pin[6], LOW); //욕조세척키고
 
-      delay(15000);//15초후에
+      delay(25000);//15초후에
 
       digitalWrite(relay_pin[0], HIGH);//펌프끄고
 
@@ -738,7 +633,6 @@ void led_check() {
 
     }
 
-
   }
 
 }
@@ -796,7 +690,6 @@ void button_check() { //토글에따른 릴레이 제어 부분 ->샴월스
   }
 
 
-
 }
 
 void dryer_check() { //토글에따른 릴레이 제어 부분
@@ -829,7 +722,6 @@ void dryer_check() { //토글에따른 릴레이 제어 부분
       }
       digitalWrite(dryer_pin[i + 1], LOW);
 
-
     }
 
     else {
@@ -845,8 +737,6 @@ void dryer_check() { //토글에따른 릴레이 제어 부분
     }
 
   }
-
-
 
 }
 
@@ -870,42 +760,23 @@ void toggle_reset() { //bath쪽 toggle 리셋
 
 }
 
-/////////////자동샴푸/////////
 
-void auto_shampoo_start() {
-
-  auto_shampoo_state = 1;
-  auto_shampoo_prev = millis();
-
-
+void water_limit_1_start() {
+  if (water_limit_1_state == 0) {  //처음 한번만 
+    water_limit_1_prev = millis();
+    water_limit_1_state = 1;
+  }
 }
 
-void auto_shampoo_stop() {
 
-   auto_shampoo_state = 0;
-
-  //auto_shampoo_prev = 0;
-  digitalWrite(auto_shampoo_relay, LOW);
-
-}
-;
-void auto_shampoo_check() {
-
-  if (auto_shampoo_state == 1 && (millis() - auto_shampoo_prev) > 15000) {//10초후 켜지게
-
-    digitalWrite(auto_shampoo_relay, HIGH);
-
-    if (  (millis() - (auto_shampoo_prev)) > 35000 ) {
-
-      auto_shampoo_stop();
-      water_state_1 = 3;
+void water_limit_1_check() {
+  if (water_limit_1_state == 1 && (millis() - water_limit_1_prev) > 50000)
+    if (analogRead(water_pin) < 300) {
+      pump_stop();
+      digitalWrite(relay_pin[1], HIGH); //급수끄고
+      myMP3.play (3);  //0003 수위 확인 
+      water_limit_1_state = 2;
+      Serial.println("작은 욕조 수위 확인");
     }
-  }
-
-  else {
-
-     digitalWrite(auto_shampoo_relay, LOW);
-
-  }
 
 }
