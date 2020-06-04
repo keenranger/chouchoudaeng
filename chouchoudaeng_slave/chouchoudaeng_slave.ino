@@ -25,13 +25,12 @@ void setup() {
 }
 
 void loop() {
-  Serial.print(analogRead(water_pin[0]));
-  Serial.print("\t");
-  Serial.println(analogRead(water_pin[1]));
-  delay(100);
+    Serial.print(analogRead(water_pin[0]));
+    Serial.print("\t");
+    Serial.println(analogRead(water_pin[1]));
+    delay(100);
 }
 void receiveFromMaster(int bytes) {}
-
 
 //핀모드용 함수들
 void pinmode_input() { pinMode(human_pin, INPUT); }
@@ -45,12 +44,12 @@ void pinmode_output() {
     pinMode(shampoo_pin, OUTPUT);
 }
 
-void sendToMaster(){
+void sendToMaster() { //마스터가 데이터 요청하면 전송해줌
     int data[2] = {0, 0};
-    for(int i=0; i<2; i++){
-        int water_value = analogRead(water_pin[i]);
-        if(water_value > 500){
-           data[i] = 1;  // [A14, A15] = [68, 67] = [샴푸물수위 넘침/충분]
+    for (int i = 0; i < 2; i++) {
+        int water_level = analogRead(water_pin[i]);
+        if (water_level > 500) {
+            data[i] = 1;  // [A14, A15] = [68, 67] = [샴푸물수위 넘침/충분]
         }
     }
     Wire.write(data[0] * 10 + data[1]);
