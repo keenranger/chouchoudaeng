@@ -47,8 +47,8 @@ void loop() {
             queue_processor(i);         //버튼에 따라 동작
         }
     }
-    led_check();
-    from_nodemcu();                          // nodemcu 명령왔나 확인
+    led_check();     // 토글 상태에 따라 LED On/Off
+    from_nodemcu();  // nodemcu 명령왔나 확인
     if ((millis() - last_request) > 1000) {  // 1초마다
         last_request = millis();
         request_slave();  // slave에게 수위센서 데이터 요청
